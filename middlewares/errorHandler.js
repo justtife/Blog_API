@@ -6,14 +6,17 @@ const errorHandler = (err, req, res, next) => {
   };
   console.log(`Caught Error ${err}`);
   console.log(`Caught Error Message ${err.message}`);
-  switch (err.message) {
+  console.log(`Name:${err.name}`);
+  switch (err.name) {
     case "ValidationError":
-      customError.message = "Invalid Request";
+      customError.message = `Invalid request; ${Object.values(err.errors)}`;
       customError.statusCode = StatusCodes.BAD_REQUEST;
       break;
     default:
-      customError.message = "An error occured, please try again later";
-      customError.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+      customError.message =
+        err.message || "An error occured, please try again later";
+      customError.statusCode =
+        err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
   }
   res.status(customError.statusCode).json({ Error: customError.message });
 };

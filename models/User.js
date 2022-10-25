@@ -13,8 +13,8 @@ const UserSchema = new mongoose.Schema({
     last: {
       type: String,
       trim: true,
-      minlength: [3, "Firstname Field should contain more than 2 characters"],
-      required: [true, "Firstname is required"],
+      minlength: [3, "Lastname Field should contain more than 2 characters"],
+      required: [true, "Lastname is required"],
     },
   },
   email: {
@@ -31,8 +31,21 @@ const UserSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     minlength: [6, "Password length should e more than 5 characters"],
   },
+  image: {
+    type: String,
+    default: "",
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  securityQuestion: {
+    type: String,
+    required: [true, "Security Question field is required"],
+  },
 });
 UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
