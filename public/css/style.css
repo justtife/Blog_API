@@ -478,3 +478,18 @@ ul.tags li a:hover {
   background-color: #ddd;
   border-radius: 5px;
 }
+.divider:after,
+.divider:before {
+content: "";
+flex: 1;
+height: 1px;
+background: #eee;
+}
+.h-custom {
+height: calc(100% - 73px);
+}
+@media (max-width: 450px) {
+.h-custom {
+height: 100%;
+}
+}

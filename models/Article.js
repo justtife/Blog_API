@@ -8,13 +8,16 @@ const ArticleSchema = new mongoose.Schema(
     },
     description: {
       type: String,
+      required: [true, "Description Field is required"],
       minlength: [20, "This field should have more than 19 characters"],
     },
     author: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
+      require: [true, "Login to create an article"],
     },
     state: {
+      type: String,
       enum: {
         values: ["Draft", "Published"],
         message: "{VALUE} is not supported",
@@ -26,7 +29,7 @@ const ArticleSchema = new mongoose.Schema(
       default: 0,
     },
     reading_time: {
-      type: Date,
+      type: String,
     },
     tags: {
       type: Array,
@@ -36,6 +39,15 @@ const ArticleSchema = new mongoose.Schema(
       required: [true, "Article body is required"],
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+ArticleSchema.virtual("comments", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "article",
+  justOne: false,
+});
+ArticleSchema.pre("remove", async function () {
+  await this.model("Comment").deleteMany({ article: this._id });
+});
 module.exports = mongoose.model("Article", ArticleSchema);

@@ -7,6 +7,7 @@ require("express-async-errors");
 const express = require("express");
 const app = express();
 const path = require("path");
+const cloudinary = require("cloudinary");
 const PORT = process.env.APP_PORT || 5050;
 
 //Autentication Modules
@@ -54,6 +55,10 @@ app.use(compression());
 //   })
 // );
 
+//Cloudinary Configuration
+const cloudinaryConfig = require("./utils/cloudinaryConfig");
+cloudinary.config(cloudinaryConfig);
+
 //Setup Views
 //Template engine
 app.use(ejsLayout);
@@ -73,6 +78,8 @@ app.use(passport.initialize());
 //Route Endpoints
 app.use("/", require("./routes/viewRoute"));
 app.use("/api/v1", require("./routes/userRoute"));
+app.use("/api/v1/article", require("./routes/blogRoute"));
+app.use("/api/v1/comment", require("./routes/commentRoute"));
 
 //Initialize Manual Middlewares
 app.use(require("./middlewares/notFound"));

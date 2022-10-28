@@ -1,23 +1,26 @@
 {
-  "name": "blog_",
+  "name": "blog_application",
   "version": "1.0.0",
-  "description": "",
+  "description": "Blog Application endpoint",
   "main": "app.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node app",
     "dev": "cross-env NODE_ENV=development nodemon app"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "NodeJS",
+    "ExpressJS",
+    "MongoDB"
+  ],
+  "author": "Justtife",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "cloudinary": "^1.32.0",
     "compression": "^1.7.4",
-    "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
-    "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
     "ejs": "^3.1.8",
     "express": "^4.18.2",
@@ -29,7 +32,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.7.0",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.20",
+    "multer": "^1.4.5-lts.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

@@ -7,12 +7,14 @@ const Token = require("../models/Token");
 const UserController = require("../controller/userController");
 const crypto = require("crypto");
 const jwtAuth = passport.authenticate("jwt", { session: false });
+const upload = require("../utils/multer");
 //Signup route
 userRoute.post("/signup", function (req, res, next) {
   passport.authenticate("signup", function (err, user, info) {
     if (err) {
       return next(err); // will generate a 500 error
     }
+    //If any Error info is generated
     if (info) {
       return res.status(401).send({
         message: info.message,
@@ -37,7 +39,6 @@ userRoute.post("/login", async (req, res, next) => {
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
         const userToken = tokenUser(user);
-        // console.log(userToken);
         let refreshToken = "";
         // Check if there is an existing login credential from this user
         const existingToken = await Token.findOne({ user: user._id });
@@ -48,8 +49,8 @@ userRoute.post("/login", async (req, res, next) => {
               "Invalid Request, Please login again"
             );
           }
-          //   //Create a new token for the user if there is an exsting token
-          //   refreshToken = existingToken.refreshToken;
+          //Create a new token for the user if there is an exsting token
+          refreshToken = existingToken.refreshToken;
           attachCookiesToResponse({ res, user: userToken, refreshToken });
           res.status(StatusCodes.OK).json({ message: "User is Logged In" });
           return;
@@ -73,11 +74,13 @@ userRoute.post("/login", async (req, res, next) => {
 
 //Update Account
 
-userRoute.patch("/update", jwtAuth, UserController.updateProfile);
+userRoute
+  .route("/update")
+  .patch(jwtAuth, upload.single("image"), UserController.updateProfile);
 
 userRoute.patch("/change-password", jwtAuth, UserController.changePassword);
 
-userRoute.patch("/forgot-password", jwtAuth, UserController.forgotPassword);
+userRoute.patch("/forgot-password", UserController.forgotPassword);
 //Logout Route
 userRoute.get("/logout", jwtAuth, async (req, res) => {
   await Token.findOneAndDelete({ user: req.user.userID });
@@ -93,5 +96,7 @@ userRoute.get("/logout", jwtAuth, async (req, res) => {
   });
   res.status(StatusCodes.OK).json({ msg: "User Logged out" });
 });
+
+userRoute.delete("/delete-account", jwtAuth, UserController.deleteAccount);
 
 module.exports = userRoute;

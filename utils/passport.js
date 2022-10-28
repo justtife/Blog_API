@@ -12,11 +12,11 @@ module.exports = function (passport) {
         passwordField: "password",
         passReqToCallback: true,
       },
-      async (req, email, password, done) => {
+      (req, email, password, done) => {
         process.nextTick(() => {
           User.findOne({ email }, (err, user) => {
             if (err) {
-              return done(err, false);
+              return done(err, false, { Error: `An error Occured; ${err}` });
             }
             //If there is an existing email,
             //Alert user exists
@@ -38,10 +38,11 @@ module.exports = function (passport) {
               newUser.securityQuestion = req.body.securityQuestion;
               newUser.save((err) => {
                 if (err) {
-                  console.log(err);
-                  return done(err, false);
+                  return done(err, false, {
+                    Error: `An error occured; ${err}`,
+                  });
                 }
-                done(null, newUser);
+                done(null, newUser, { message: "User successfully Created" });
               });
             }
           });
@@ -60,7 +61,7 @@ module.exports = function (passport) {
       },
       async (email, password, done) => {
         if (!email || !password) {
-          done(null, false);
+          done(null, false, { message: "Invalid credentials" });
         }
         try {
           const user = await User.findOne({ email });
@@ -71,9 +72,9 @@ module.exports = function (passport) {
           if (!checkPass) {
             return done(null, false, { message: "Invalid Credentials" });
           }
-          done(null, user);
+          done(null, user, { message: "User successfully logged in" });
         } catch (err) {
-          done(err, false);
+          done(err, false, { Error: `An error occured; ${err}` });
         }
       }
     )

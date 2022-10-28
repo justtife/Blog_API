@@ -12,6 +12,19 @@ const errorHandler = (err, req, res, next) => {
       customError.message = `Invalid request; ${Object.values(err.errors)}`;
       customError.statusCode = StatusCodes.BAD_REQUEST;
       break;
+    case "MongoServerError":
+      customError.message = `Article with this title exist already`;
+      customError.statusCode = StatusCodes.BAD_REQUEST;
+      break;
+    // case "BSONTypeError":
+    //   customError.message = `Article with this id does not exist`;
+    //   customError.statusCode = StatusCodes.NOT_FOUND;
+    //   break;
+
+    case "CastError":
+      customError.message = `Article with this id does not exist`;
+      customError.statusCode = StatusCodes.NOT_FOUND;
+      break;
     default:
       customError.message =
         err.message || "An error occured, please try again later";
