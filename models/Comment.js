@@ -16,7 +16,7 @@ const CommentSchema = new mongoose.Schema(
     },
     user: {
       type: String,
-      require: [true, "Login to create an article"],
+      required: [true, "Login to create an article"],
     },
     replies: {
       type: Array,
