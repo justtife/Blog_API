@@ -28,6 +28,7 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    trim: true,
     required: [true, "Password is required"],
     minlength: [6, "Password length should e more than 5 characters"],
   },
@@ -41,14 +42,24 @@ const UserSchema = new mongoose.Schema({
   },
   securityQuestion: {
     type: String,
+    trim: true,
     required: [true, "Security Question field is required"],
+    minlength: [3, "Security Question should be longer than 2 characters"],
   },
 });
+// Hash Password before saving on every modification of the password
 UserSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-  const salt = await bcrypt.genSalt(10);
+  let salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+//Hash Security Question before saving on every modification of the security Question
+UserSchema.pre("save", async function () {
+  if (!this.isModified("securityQuestion")) return;
+  let salt = await bcrypt.genSalt(10);
+  this.securityQuestion = await bcrypt.hash(this.securityQuestion, salt);
+});
+//Method to compare password
 UserSchema.methods.comparePassword = async function (passcode) {
   const isValid = await bcrypt.compare(passcode, this.password);
   return isValid;

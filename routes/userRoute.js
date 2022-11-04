@@ -8,7 +8,8 @@ const UserController = require("../controller/userController");
 const crypto = require("crypto");
 const jwtAuth = passport.authenticate("jwt", { session: false });
 const upload = require("../utils/multer");
-//Signup route
+const _ = require("lodash");
+//Signup Route
 userRoute.post("/signup", function (req, res, next) {
   passport.authenticate("signup", function (err, user, info) {
     if (err) {
@@ -20,9 +21,6 @@ userRoute.post("/signup", function (req, res, next) {
         message: info.message,
       });
     }
-    res
-      .status(StatusCodes.CREATED)
-      .json({ message: "User successfully created" });
   })(req, res, next);
 });
 
@@ -52,7 +50,19 @@ userRoute.post("/login", async (req, res, next) => {
           //Create a new token for the user if there is an exsting token
           refreshToken = existingToken.refreshToken;
           attachCookiesToResponse({ res, user: userToken, refreshToken });
-          res.status(StatusCodes.OK).json({ message: "User is Logged In" });
+          res.status(StatusCodes.OK).json({
+            message: {
+              detail: "User logged In Already",
+              status: "Success",
+              user: _.omit(Object.values(user)[2], [
+                "password",
+                "securityQuestion",
+                "__v",
+              ]),
+              token: req.signedCookies["refreshToken"],
+              expires: 3600,
+            },
+          });
           return;
         }
         //If there is no existing token, create new token collection
@@ -62,9 +72,19 @@ userRoute.post("/login", async (req, res, next) => {
         const newUserToken = { refreshToken, ip, userAgent, user: user._id };
         await Token.create(newUserToken);
         attachCookiesToResponse({ res, user: userToken, refreshToken });
-        res
-          .status(StatusCodes.OK)
-          .json({ message: "User successfully Logged In" });
+        res.status(StatusCodes.OK).json({
+          message: {
+            detail: "User logged In Successfully",
+            status: "Success",
+            user: _.omit(Object.values(user)[2], [
+              "password",
+              "securityQuestion",
+              "__v",
+            ]),
+            token: req.signedCookies["refreshToken"],
+            expires: 3600,
+          },
+        });
       });
     } catch (error) {
       console.error(err);
@@ -72,18 +92,18 @@ userRoute.post("/login", async (req, res, next) => {
   })(req, res, next);
 });
 
-//Update Account
-
+//Update Account Route
 userRoute
   .route("/update")
   .patch(jwtAuth, upload.single("image"), UserController.updateProfile);
-
+//Change Password Route
 userRoute.patch("/change-password", jwtAuth, UserController.changePassword);
-
+//Forgot Password route
 userRoute.patch("/forgot-password", UserController.forgotPassword);
 //Logout Route
 userRoute.get("/logout", jwtAuth, async (req, res) => {
-  await Token.findOneAndDelete({ user: req.user.userID });
+  //Delete existing user token in database
+  await Token.findOneAndDelete({ user: req.user._id });
   //Change  Access token cookie and expire
   res.cookie("accessToken", "logout", {
     httpOnly: true,
@@ -94,9 +114,11 @@ userRoute.get("/logout", jwtAuth, async (req, res) => {
     httpOnly: true,
     expires: new Date(Date.now()),
   });
-  res.status(StatusCodes.OK).json({ msg: "User Logged out" });
+  res
+    .status(StatusCodes.OK)
+    .json({ message: { detail: "User Logged out", status: "Success" } });
 });
-
+//Delete Account Route
 userRoute.delete("/delete-account", jwtAuth, UserController.deleteAccount);
 
 module.exports = userRoute;

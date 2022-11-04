@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node app",
-    "dev": "cross-env NODE_ENV=development nodemon app"
+    "dev": "cross-env NODE_ENV=development nodemon app",
+    "test": "cross-env NODE_ENV=test jest --watchAll --runInBand --testTimeout=5000"
   },
   "keywords": [
     "NodeJS",
@@ -30,6 +31,8 @@
     "helmet": "^6.0.0",
     "http-status-codes": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
     "mongoose": "^6.7.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
@@ -38,5 +41,9 @@
     "passport-local": "^1.0.0",
     "validator": "^13.7.0",
     "xss-clean": "^0.1.1"
+  },
+  "devDependencies": {
+    "jest": "^29.2.2",
+    "supertest": "^6.3.1"
   }
 }

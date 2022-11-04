@@ -14,6 +14,10 @@ const CommentSchema = new mongoose.Schema(
       ref: "Article",
       required: [true, "An article is needed"],
     },
+    user: {
+      type: String,
+      require: [true, "Login to create an article"],
+    },
     replies: {
       type: Array,
       default: [],

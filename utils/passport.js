@@ -1,7 +1,7 @@
 const LocalStrategy = require("passport-local").Strategy;
 const JWTStrategy = require("passport-jwt").Strategy;
 const User = require("../models/User");
-const CustomError = require("../errors");
+const _ = require("lodash");
 module.exports = function (passport) {
   //Sign up strategy
   passport.use(
@@ -16,13 +16,21 @@ module.exports = function (passport) {
         process.nextTick(() => {
           User.findOne({ email }, (err, user) => {
             if (err) {
-              return done(err, false, { Error: `An error Occured; ${err}` });
+              return done(err, false, {
+                message: {
+                  detail: `An error Occured; ${err}`,
+                  status: "Failed",
+                },
+              });
             }
             //If there is an existing email,
             //Alert user exists
             if (user) {
               return done(null, false, {
-                message: "User with Email Already Exists",
+                message: {
+                  detail: "User exist already",
+                  status: "Failed",
+                },
               });
             } else {
               // if there is no user with that email
@@ -30,7 +38,6 @@ module.exports = function (passport) {
               var newUser = new User();
 
               // set the user's local credentials
-
               newUser.email = email;
               newUser.password = password;
               newUser.name.first = req.body.firstname;
@@ -42,7 +49,18 @@ module.exports = function (passport) {
                     Error: `An error occured; ${err}`,
                   });
                 }
-                done(null, newUser, { message: "User successfully Created" });
+                //Send response back
+                done(null, newUser, {
+                  message: {
+                    detail: "User created successfully",
+                    status: "Success",
+                    user: _.omit(Object.values(newUser)[1], [
+                      "password",
+                      "securityQuestion",
+                      "__v",
+                    ]),
+                  },
+                });
               });
             }
           });
@@ -50,8 +68,8 @@ module.exports = function (passport) {
       }
     )
   );
-  //Login Strategy
 
+  //Login Strategy
   passport.use(
     "login",
     new LocalStrategy(
@@ -61,20 +79,37 @@ module.exports = function (passport) {
       },
       async (email, password, done) => {
         if (!email || !password) {
-          done(null, false, { message: "Invalid credentials" });
+          done(null, false);
         }
         try {
+          //Find User in the database
           const user = await User.findOne({ email });
+          //If no user, throw not found error
           if (!user) {
-            return done(null, false, { message: "Invalid credentials" });
+            return done(null, false, {
+              message: {
+                detail: "User does not exist, please sign up",
+                status: "Failed",
+              },
+            });
           }
+          //Compare password to the hashed password saved in database
           const checkPass = await user.comparePassword(password);
+          //Throw error if password is not valid
           if (!checkPass) {
-            return done(null, false, { message: "Invalid Credentials" });
+            return done(null, false, {
+              message: {
+                detail:
+                  "Invalid Credentials, please ensure email and password are correct",
+                status: "Failed",
+              },
+            });
           }
-          done(null, user, { message: "User successfully logged in" });
+          done(null, user);
         } catch (err) {
-          done(err, false, { Error: `An error occured; ${err}` });
+          done(err, false, {
+            message: { detail: `An error occured; ${err}`, status: "Failed" },
+          });
         }
       }
     )
@@ -82,12 +117,14 @@ module.exports = function (passport) {
   //Cookie Extractor
   var cookieExtractor = function (req) {
     var token = null;
+    //Check for signed cookies in response
     if (req && req.signedCookies) {
       token =
         req.signedCookies["accessToken"] || req.signedCookies["refreshToken"];
     }
     return token;
   };
+  //JWT Strategy
   passport.use(
     "jwt",
     new JWTStrategy(
@@ -96,7 +133,9 @@ module.exports = function (passport) {
         jwtFromRequest: cookieExtractor,
       },
       async function (jwt_payload, done) {
+        //Check if the user saved in token exist in database
         const user = await User.findOne({ _id: jwt_payload.user.userID });
+        //If the user does not exist, throw not logged in user
         if (!user) {
           done(null, false, { message: "No logged In User, please login" });
         }

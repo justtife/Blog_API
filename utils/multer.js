@@ -1,3 +1,4 @@
+//Upload images with multer
 const multer = require("multer");
 let storage = multer.diskStorage({
   filename: (req, file, cb) => {
