@@ -131,7 +131,7 @@ module.exports = class BlogAPI {
       publishedArticle = publishedArticle.find({
         $or: [
           //Search by author's name,email
-          { "user.email": { $regex: search, $options: "i" } },
+          //{ "user.email": { $regex: search, $options: "i" } },
           // Search by title of article
           { title: { $regex: search, $options: "i" } },
           //Search by keywords in tags
