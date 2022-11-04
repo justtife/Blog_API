@@ -39,7 +39,7 @@ The below shows a list of modules used as well as their function:
 | `start`                   | Runs full build in production mode. Can be invoked with `npm start`                  |
 | `dev`                   | Runs full build in development mode. Can be invoked with `npm run dev`                                         |
 | `test`                    | Runs build and run tests using jest. Can be invoked with `npm run test`        |
-|
+
 
 
 
@@ -111,6 +111,300 @@ The api route used in this project are listed below:
 | **/api/v1/comment/:id**      | POST method: Used to comment on a single article |
 | **/api/v1/comment/:id**      | DELETE method: Deletes a single comment made on an article(Can be done only by logged in users) |
 | **/api/v1/article/:id/reply**      | Reply: Used to reply on a comment 
-|
+
+# Models
+### User
+| Field  |  Data Type | Constraints  |
+|---|---|---|
+|  id |  ObjectId |  required |
+|  name.first |  String |  required |
+|  name.last | String  |  required|
+|  email  |  String |  required  |
+|  password     | String  |  required |
+|  securityQuestion |   String |  required  |
+|  image |  String |  optional, default: "" |
+|  isVerified |  Boolean |  default: false |
 
 
+### Article
+| Field  |  Data Type | Constraints  |
+|---|---|---|
+|  title |  String |  required |
+|  description |  String |  required |
+|  author | Schema.ObjectId  |  required|
+|  state  |  String |  enum: ("Draft","Published"), default: "Draft"  |
+|  read_count     | Number  |  optional |
+|  reading_time |   Number |  optional  |
+|  tags |  Array |  optional |
+|  body |  String |  required |
+|  createdAt |  Date |  required |
+|  updatedAt |  Date |  required |
+
+### Comment
+| Field  |  Data Type | Constraints  |
+|---|---|---|
+|  title |  String |  required |
+|  body |  String |  required |
+|  article | String  |  required|
+|  replies  |  Array |  optional |
+|  user     | Schema.ObjectId  |  required |
+|  createdAt |  Date |  required |
+|  updatedAt |  Date |  required |
+
+### Token
+| Field  |  Data Type | Constraints  |
+|---|---|---|
+|  refreshToken |  String |  required |
+|  ip |  String |  required |
+|  userAgent | String  |  required|
+|  isValid  |  Boolean |  default:true |
+|  user     | Schema.ObjectId  |  required |
+|  createdAt |  Date |  required |
+
+
+# APIs
+---
+
+### Signup User
+
+- Route: http://localhost:5050/api/v1/signup
+- Method: POST
+- Body: 
+```
+{"email": "testuser@example.com","password":"Password123","firstname": "Test","lastname": "User","securityQuestion": "Hello World"
+}
+```
+
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "User created successfully",
+        "status": "Success",
+        "user": {
+            "name": {
+                "first": "Test",
+                "last": "User"
+            },
+            "image": "",
+            "isVerified": false,
+            "_id": "6365488968cc61a8bc6ec2b3",
+            "email": "testuser@example.com"
+        }
+    }
+}
+```
+---
+### Login User
+
+- Route: http://localhost:5050/api/v1/signup
+- Method: POST
+- Body: 
+```
+{"password": "Password1234","email": 'testuser@example.com"}
+```
+
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "User logged In Successfully",
+        "status": "Success",
+        "user": {
+            "name": {
+                "first": "Test",
+                "last": "User"
+            },
+            "_id": "6365488968cc61a8bc6ec2b3",
+            "image": "",
+            "isVerified": false,
+            "email": "testuser@example.com"
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Im5hbWUiOiJCb2x1d2F0aWZlIiwidXNlcklEIjoiNjM2NTJlNjllOTNmNTRhODllNTZiZWQ0In0sInJlZnJlc2hUb2tlbiI6IjYxZmM5Y2ExOTBhYmJmODhkNDBkZTEyOGFiYjU2NDNkNTAyYjUyNGRiOTBlMTJjMWI3NGMxMDg3OGZlMWM5MWI2ZDc5YTdiYWM3YjQ4Njg4IiwiaWF0IjoxNjY3NTgxOTYzLCJleHAiOjE2NzExODE5NjN9.aESSw_y4PMQVqdXzbOMaxBMeMm4gxsWsBoR_vsrnWi4",
+        "expires": 3600
+    }
+}
+```
+---
+### Update User
+
+- Route: http://localhost:5050/api/v1/update
+- Method: PATCH
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+```
+{"email": "testuser@example.com","image":"user.jpg","firstname": "Test","lastname": "User","securityQuestion": "Hello World"
+}
+```
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "User account successfully updated",
+        "status": "Success",
+        "user": {
+            "name": {
+                "first": "Test",
+                "last": "User"
+            },
+            "_id": "63652b971104ae8c774e103b",
+            "image": "user-images/image_1667574689527_dp_sxxtjf http://res.cloudinary.com/dllgzg6si/image/upload/v1667574691/user-images/image_1667574689527_user.jpg",
+            "isVerified": false,
+            "email": "testuser@example.com"
+        }
+    }
+}
+```
+---
+### Forgot Password
+
+- Route: http://localhost:5050/api/v1/forgot-password
+- Method: PATCH
+- Body: 
+```
+{"email": "testuser@example.com","password": "Password1234","securityQuestion": "Hello World"
+}
+```
+-Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "Password updated successfully",
+        "status": "Success"
+    }
+}
+```
+
+---
+### Change Password
+
+- Route: http://localhost:5050/api/v1/change-password
+- Method: PATCH
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+```
+{oldPassword: "Password1234",newPassword: "Password4321"}
+```
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "Password changed successfully",
+        "status": "Success"
+    }
+}
+```
+---
+### Create Article
+
+- Route: http://localhost:5050/api/v1/article/create
+- Method: POST
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+```
+    {title:"Hello World",description: "Lorem Ipsum dolor sit amet",body: "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve",tags:["NodeJs","ExpressJS","MongoDB"]}
+```
+
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "Article created successfully",
+        "status": "Success",
+        "article": {
+            "title": "Hello World",
+            "description": "Lorem Ipsum dolor sit amet",
+            "author": "6365488968cc61a8bc6ec2b3",
+            "state": "Draft",
+            "read_count": 0,
+            "reading_time": 1,
+            "tags": [
+                "NodeJs,"ExpressJS","MongoDB"
+            ],
+            "body": "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve",
+            "_id": "6365492a68cc61a8bc6ec2c8",
+            "createdAt": "2022-11-04T17:17:30.032Z"
+        }
+    }
+```
+---
+### Create comment
+
+- Route: http://localhost:5050/api/v1/comment/create/6365492a68cc61a8bc6ec2c8
+- Method: POST
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+```
+
+    {title:"Nice Write Up",body: "Lorem Ipsum dolor sit amet"}
+
+```
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "Comment Submitted",
+        "status": "success",
+        "comment": {
+            "title": "New Write Up",
+            "body": "Lorem ipsum dolor sit amet",
+            "article": "63653111467ab4b3754b4127",
+            "user": "63652e69e93f54a89e56bed4",
+            "replies": [],
+            "_id": "636544c2257dc6da3dd5dbbc",
+            "createdAt": "2022-11-04T16:58:42.919Z"
+        }
+    }
+}
+```
+---
+
+### Get Orders
+
+- Route: http://localhost:5050/api/v1/comment/6365492a68cc61a8bc6ec2c8/reply
+- Method: PATCH
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+    {reply: "Wonderful. Exactly my thoughts on the artilcle"}
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "Reply submitted successfully",
+        "status": "success"
+    }
+}
+```
+---
+
+...
+
+## Contributor
+- Farinu Boluwatife
+- farinubolu@gmail.com
