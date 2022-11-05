@@ -1,4 +1,20 @@
 
+
+
+
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+![ISC License][license-shield]
+
+
+
 # NodeJS Blog API
 
 A minimal, secure RESTFUL api for NodeJS. This project includes user authentication system using PassportJS, access control of objects, encrypted hashing of passwords and  other secure features.
@@ -9,6 +25,21 @@ A minimal, secure RESTFUL api for NodeJS. This project includes user authenticat
  - Online:
  https://blog-api.cyclic.app/
 
+### Built Using
+
+This section shows a list of frameworks, tools and libraries used during the execution of this project.
+
+![Javascript][JAVASCRIPT]
+![NodeJS][NodeJS]
+![NPM][NPM]
+![ExpressJS][EXPRESS]
+![MongoDB][MONGODB]
+![Jest][JEST]
+![JWT][JWT]
+![Markdown][MARKDOWN]
+![Visual Studio Code][VISUALSTUDIOCODE]
+![JSON][JSON]
+![Prettier][PRETTIER]
 
 ## Modules
 The below shows a list of modules used as well as their function:
@@ -92,7 +123,9 @@ The above tests for post routes that do not exist
 
 ## Running tests using NPM Scripts
 
+```
 npm run test
+```
 
 
 # Routes
@@ -173,7 +206,9 @@ The api route used in this project are listed below:
 
 ### Signup User
 
-- Route: http://localhost:5050/api/v1/signup
+- Route: 
+   - http://localhost:5050/api/v1/signup
+   - https://blog-api.cyclic.app/api/v1/signup
 - Method: POST
 - Body: 
 ```
@@ -205,7 +240,9 @@ Success
 ---
 ### Login User
 
-- Route: http://localhost:5050/api/v1/signup
+- Route: 
+  - http://localhost:5050/api/v1/login
+  - https://blog-api.cyclic.app/api/v1/login
 - Method: POST
 - Body: 
 ```
@@ -238,7 +275,9 @@ Success
 ---
 ### Update User
 
-- Route: http://localhost:5050/api/v1/update
+- Route: 
+  - http://localhost:5050/api/v1/update
+  - https://blog-api.cyclic.app/api/v1/update
 - Method: PATCH
 - Cookies
     - req.signedCookies("accessToken")
@@ -272,7 +311,9 @@ Success
 ---
 ### Forgot Password
 
-- Route: http://localhost:5050/api/v1/forgot-password
+- Route: 
+  - http://localhost:5050/api/v1/forgot-password
+  - https://blog-api.cyclic.app/api/v1/forgot-password
 - Method: PATCH
 - Body: 
 ```
@@ -294,7 +335,9 @@ Success
 ---
 ### Change Password
 
-- Route: http://localhost:5050/api/v1/change-password
+- Route: 
+  - http://localhost:5050/api/v1/change-password
+  - https://blog-api.cyclic.app/api/v1/change-password
 - Method: PATCH
 - Cookies
     - req.signedCookies("accessToken")
@@ -315,9 +358,40 @@ Success
 }
 ```
 ---
+
+### Delete Account
+
+- Route: 
+  - http://localhost:5050/api/v1/delete-account
+  - https://blog-api.cyclic.app/api/v1/delete-account
+- Method: DELETE
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+```
+    {securityQuestion:"Hello World"}
+```
+
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "User Account successfully deleted",
+        "status": "Success"
+    }
+}
+
+//Account gets deleted along with articles associated with the author
+```
+---
 ### Create Article
 
-- Route: http://localhost:5050/api/v1/article/create
+- Route: 
+  - http://localhost:5050/api/v1/article/create
+  - https://blog-api.cyclic.app/api/v1/article/create
 - Method: POST
 - Cookies
     - req.signedCookies("accessToken")
@@ -352,9 +426,324 @@ Success
     }
 ```
 ---
+### Publish Article
+
+- Route: 
+  - http://localhost:5050/api/v1/article/1234567890
+  - https://blog-api.cyclic.app/api/v1/article/1234567890
+- Method: PATCH
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+
+- Responses
+
+Success
+```
+     {
+        message: {
+          "detail": "Article has been published",
+          "status": "success",
+          "article": {
+            "title": "Hello World",
+            "description": "Lorem Ipsum dolor sit amet",
+            "author": "6365488968cc61a8bc6ec2b3",
+            "state": "Published",
+            "read_count": 0,
+            "reading_time": 1,
+            "tags": [
+                "NodeJs,"ExpressJS","MongoDB"
+            ],
+            "body": "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve",
+            "_id": "6365492a68cc61a8bc6ec2c8",
+            "createdAt": "2022-11-04T17:17:30.032Z"
+        }
+        },
+      }
+```
+---
+### Update Article
+
+- Route: 
+  - http://localhost:5050/api/v1/article/1234567890/edit
+  - https://blog-api.cyclic.app/api/v1/1234567890/edit
+- Method: PATCH
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+    - 
+- Body: 
+```
+    {title:"Hello World",description: "Lorem Ipsum dolor sit amet",body: "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve",tags:["NodeJs","ExpressJS","MongoDB"]}
+```
+- Responses
+
+Success
+```{
+    "message": {
+        "detail": "Article successfully updated",
+        "status": "Success",
+        "article": {
+            "_id": "636531cd467ab4b3754b412d",
+            "title": "Hello World",
+            "description": "Lorem Ipsum dolor sit amet",
+            "author": "63652e69e93f54a89e56bed4",
+            "state": "Published",
+            "read_count": 1,
+            "reading_time": 1,
+            "tags": [
+                "NodeJs","ExpressJS","MongoDB"
+            ],
+            "body": "One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve",
+            "createdAt": "2022-11-04T15:37:49.620Z"
+        }
+    }
+}
+```
+---
+### Get All Article
+
+- Route: 
+  - http://localhost:5050/api/v1/article/all
+  - https://blog-api.cyclic.app/api/v1/article/all
+- Method: GET
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "All Articles",
+        "status": "Success",
+        "countPerPage": 3,
+        "numOfArticles": 3,
+        "articles": [
+            {
+                "_id": "63653111467ab4b3754b4127",
+                "title": "Mongodb",
+                "description": "Working with No SQL Database",
+                "author": "63652e69e93f54a89e56bed4",
+                "state": "Published",
+                "read_count": 9,
+                "reading_time": 3,
+                "tags": [
+                    "MongoDB, No SQL, Database"
+                ],
+                "body": "In this article I want to tell you what MongoDB is and if you should try it out.\n\nLet me start with describing my experience with it. The first time I tried it was about 4 years ago, when it was on trend and everybody wanted to give it a shot, as NoSQL was what every startup needed!!! (not really, but we’ll talk about it later.)But I didn’t get anywhere with it at that point, played around with it a little bit, even used it for some MVP, but not for any serious projects.",
+                "createdAt": "2022-11-04T15:34:41.203Z",
+                "user": {
+                    "name": {
+                        "first": "Test",
+                        "last": "User"
+                    },
+                    "_id": "1234567890",
+                    "email": "testuser@gmail.com"
+                },
+                "id": "63653111467ab4b3754b4127"
+            },
+            {
+                "_id": "636531cd467ab4b3754b412d",
+                "title": "Jest Test",
+                "description": "Test Driven Development",
+                "author": "63652e69e93f54a89e56bed4",
+                "state": "Published",
+                "read_count": 1,
+                "reading_time": 1,
+                "tags": [
+                    null
+                ],
+                "body": "In this article I want to tell you what MongoDB is and if you should try it out.\\n\\nLet me start with describing my experience with it. ",
+                "createdAt": "2022-11-04T15:37:49.620Z",
+                "user": {
+                    "name": {
+                        "first": "Boluwatife",
+                        "last": "Farinu"
+                    },
+                    "_id": "63652e69e93f54a89e56bed4",
+                    "email": "farinubolu@gmail.com"
+                },
+                "id": "636531cd467ab4b3754b412d"
+            },
+            {
+                "_id": "6365492a68cc61a8bc6ec2c8",
+                "title": "Python API Test",
+                "description": "Pytest and Test Driven Development",
+                "author": "6365488968cc61a8bc6ec2b3",
+                "state": "Published",
+                "read_count": 5,
+                "reading_time": 1,
+                "tags": [
+                    "python,test"
+                ],
+                "body": "Writing python test using pytest library. Test driven development",
+                "createdAt": "2022-11-04T17:17:30.032Z",
+                "user": null,
+                "id": "6365492a68cc61a8bc6ec2c8"
+            }
+        ]
+    }
+}
+```
+---
+### Get single author articles
+
+- Route: 
+  - http://localhost:5050/api/v1/article/my-articles
+  - https://blog-api.cyclic.app/api/v1/article/my-articles
+- Method: GET
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "User:63652e69e93f54a89e56bed4 Articles",
+        "countPerPage": 3,
+        "numOfArticles": 3,
+        "status": "Success",
+        "articles": [
+            {
+                "_id": "63653111467ab4b3754b4127",
+                "title": "Mongodb",
+                "description": "Working with No SQL Database",
+                "author": "63652e69e93f54a89e56bed4",
+                "state": "Published",
+                "read_count": 9,
+                "reading_time": 3,
+                "tags": [
+                    "MongoDB, No SQL, Database"
+                ],
+                "body": "In this article I want to tell you what MongoDB is and if you should try it out.\n\nLet me start with describing my experience with it. The first time I tried it was about 4 years ago, when it was on trend and everybody wanted to give it a shot, as NoSQL was what every startup needed!!! (not really, but we’ll talk about it later.) So it has basically everything you can get from an SQL database along with saving it via the pipeline format and with more legible syntax.\n\nHere’s an example from the docs:",
+                "createdAt": "2022-11-04T15:34:41.203Z",
+                "updatedAt": "2022-11-04T22:49:11.351Z",
+                "__v": 0,
+                "id": "63653111467ab4b3754b4127"
+            },
+            {
+                "_id": "636531cd467ab4b3754b412d",
+                "title": "NodeJS",
+                "description": "Javvascript run time environment",
+                "author": "63652e69e93f54a89e56bed4",
+                "state": "Published",
+                "read_count": 1,
+                "reading_time": 2,
+                "tags": [
+                    "Javascript, Node, NPM"
+                ],
+                "body": "Being the most popular programming language, JavaScript is also one of the most universal software development technologies.  The interest in this technology peaked in 2017, as per Google Trends, and remains high.\n\n",
+                "createdAt": "2022-11-04T15:37:49.620Z",
+                "updatedAt": "2022-11-04T17:11:33.611Z",
+                "__v": 0,
+                "id": "636531cd467ab4b3754b412d"
+            },
+            {
+                "_id": "6366174fb59e7ff02c51ddca",
+                "title": "API Test",
+                "description": "Pytest and Test Driven Development",
+                "author": "63652e69e93f54a89e56bed4",
+                "state": "Draft",
+                "read_count": 0,
+                "reading_time": 1,
+                "tags": [
+                    "python,test"
+                ],
+                "body": "Writing python test using pytest library. Test driven development",
+                "createdAt": "2022-11-05T07:57:03.720Z",
+                "updatedAt": "2022-11-05T07:57:03.720Z",
+                "__v": 0,
+                "id": "6366174fb59e7ff02c51ddca"
+            }
+        ]
+    }
+}
+```
+---
+### Get a single article
+
+- Route: 
+  - http://localhost:5050/api/v1/article/636531cd467ab4b3754b412d
+  - https://blog-api.cyclic.app/api/v1/article/636531cd467ab4b3754b412d
+- Method: GET
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+
+- Responses
+
+Success
+```
+{
+    "message": {
+        "detail": "Article with id:636531cd467ab4b3754b412d",
+        "status": "Success",
+        "article": {
+            "_id": "636531cd467ab4b3754b412d",
+            "title": "Jest Test",
+            "description": "Test Driven Development",
+            "author": "63652e69e93f54a89e56bed4",
+            "state": "Published",
+            "read_count": 2,
+            "reading_time": 1,
+            "tags": [
+                null
+            ],
+            "body": "In this article I want to tell you what MongoDB is and if you should try it out.\\n\\nLet me start with describing my experience with it. The first time I tried it was about 4 years ago, when it was on trend and everybody wanted to give it a shot, as NoSQL was what every startup needed!!! (not really, but we’ll talk about it later.)But I didn’t get anywhere with it at that point, played around with it a little bit, even used it for some MVP, but not for any serious projects. And then I forgot about it for some time.",
+            "createdAt": "2022-11-04T15:37:49.620Z",
+            "__v": 1,
+            "comments": [],
+            "user": {
+                "name": {
+                    "first": "Boluwatife",
+                    "last": "Farinu"
+                },
+                "_id": "63652e69e93f54a89e56bed4",
+                "image": "",
+                "isVerified": false,
+                "email": "farinubolu@gmail.com"
+            },
+            "id": "636531cd467ab4b3754b412d"
+        }
+    }
+}
+
+//This article is populated with comments made on the article as well as the details of the author that created the article
+```
+---
+### Delete Article
+
+- Route: 
+  - http://localhost:5050/api/v1/article/63652f7efc97f75460e251e7
+  - https://blog-api.cyclic.app/api/v1/article/63652f7efc97f75460e251e7
+- Method: DELETE
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Body: 
+```
+
+    {securityQuestion:"Testing"}
+
+```
+- Responses
+
+Success
+```
+    {
+      message: { detail: "Article successfully Deleted", status: "Success" },
+    }
+```
+---
 ### Create comment
 
-- Route: http://localhost:5050/api/v1/comment/create/6365492a68cc61a8bc6ec2c8
+- Route: 
+  - http://localhost:5050/api/v1/comment/create/6365492a68cc61a8bc6ec2c8
+  - https://blog-api.cyclic.app/api/v1/comment/create/6365492a68cc61a8bc6ec2c8
 - Method: POST
 - Cookies
     - req.signedCookies("accessToken")
@@ -386,16 +775,21 @@ Success
 }
 ```
 ---
+### Reply on a comment
 
-### Get Orders
-
-- Route: http://localhost:5050/api/v1/comment/6365492a68cc61a8bc6ec2c8/reply
+- Route: 
+  - http://localhost:5050/api/v1/comment/636544c2257dc6da3dd5dbbc/reply
+  - https://blog-api.cyclic.app/api/v1/comment/636544c2257dc6da3dd5dbbc/reply
 - Method: PATCH
 - Cookies
     - req.signedCookies("accessToken")
     - req.signedCookies("refreshToken")
 - Body: 
-    {reply: "Wonderful. Exactly my thoughts on the artilcle"}
+```
+
+    {reply:"Exactly my thoughts about this article"}
+
+```
 - Responses
 
 Success
@@ -408,9 +802,51 @@ Success
 }
 ```
 ---
+### Delete comment
+
+- Route: 
+  - http://localhost:5050/api/v1/comment/636544c2257dc6da3dd5dbbc/
+  - https://blog-api.cyclic.app/api/v1/comment/636544c2257dc6da3dd5dbbc/
+- Method: DELETE
+- Cookies
+    - req.signedCookies("accessToken")
+    - req.signedCookies("refreshToken")
+- Responses
+
+Success
+```
+    {
+      message: { detail: "Comment successfully deleted", status: "success" },
+    }
+```
+---
 
 ...
 
 ## Contributor
 - Farinu Boluwatife
-- farinubolu@gmail.com
+
+[![LinkedIn][linkedin-shield]][linkedin-url]
+[![Gmail][gmail-shield]][gmail-url]
+
+[contributors-shield]: https://img.shields.io/badge/CONTRIBUTOR-1-blue
+[contributors-url]: https://github.com/justtife/Blog_API/graphs/contributors
+[license-shield]: https://img.shields.io/badge/LICENSE-ISC-yellow
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/in/farinu-boluwatife-5817b319a/
+[gmail-shield]: https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white
+[gmail-url]: farinubolu@gmail.com
+
+[NodeJS]: https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white
+[NPM]: 	https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white
+[MARKDOWN]: https://img.shields.io/badge/Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white
+[JWT]: https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white
+[JEST]: https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white
+[EXPRESS]: https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white
+[VISUALSTUDIOCODE]: https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white
+[JAVASCRIPT]: https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E
+[JSON]: https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white
+[PRETTIER]: https://img.shields.io/badge/prettier-1A2C34?style=for-the-badge&logo=prettier&logoColor=F7BA3E
+[MONGODB]: https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white
+
+
