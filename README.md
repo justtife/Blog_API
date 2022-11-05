@@ -587,6 +587,21 @@ Success
     }
 }
 ```
+- Query Parameter:
+  - Search: https://blog-api.cyclic.app/api/v1/article/all?search=hello http://localhost:5050/api/v1/article/all?search=hello
+  This query parameter filters the output based on the title/tag/author field using the logical or opertaion in mongodb
+  - read_count: https://blog-api.cyclic.app/api/v1/article/all?read_count=-1 http://localhost:5050/api/v1/article/all?read_count=-1
+  When the value of read_count is set to -1, it orders the output in a descending order(Article with highest read count to those with lowest read count)
+  When the value of read_count is set not to be -1, it orders the output in an ascending manner(Article with lowest read count to those with highest read count)
+  - reading_time: https://blog-api.cyclic.app/api/v1/article/all?reading_time=-1 http://localhost:5050/api/v1/article/all?reading_time=-1
+  When the value of reading_time is set to -1, it orders the output in a descending manner(Article with highest reading time to those with lowest reading time)
+  When the value of reading_time is set not to be -1, it orders the output in an ascending manner(Article with lowest reading time to those with highest reading time)
+  - createdAt: https://blog-api.cyclic.app/api/v1/article/all?createdAt=-1 http://localhost:5050/api/v1/article/all?createdAt=-1
+  When the value of createdAt is set to -1, it orders the output in a descending manner(Article with latest createdAt to those with oldest createdAt)
+  When the value of createdAt is set not to be -1, it orders the output in an ascending manner(Article with oldest createdAt to those with latest createdAt)
+  - page: https://blog-api.cyclic.app/api/v1/article/all?page=2 http://localhost:5050/api/v1/article/all?page=2
+  The output is paginated to 20 article data per output. Using the page query filter, the output moves to the next set of output
+  (The page query is automatically set to a value of one on the request of this route)
 ---
 ### Get single author articles
 
@@ -663,6 +678,12 @@ Success
     }
 }
 ```
+- Query Parameter:
+  - Search: http://localhost:5050/api/v1/article/my-articles?state=Draft https://blog-api.cyclic.app/api/v1/article/my-articles?state=Draft
+  This query parameter filters the output based on the state of the field(either Draft state or Published State)st createdAt to those with latest createdAt)
+  - page: http://localhost:5050/api/v1/article/my-articles?page=2 https://blog-api.cyclic.app/api/v1/article/my-articles?page=2
+  The output is paginated to 20 article data per output. Using the page query filter, the output moves to the next set of output
+  (The page query is automatically set to a value of one on the request of this route)
 ---
 ### Get a single article
 
