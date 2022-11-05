@@ -3,6 +3,12 @@
 
 A minimal, secure RESTFUL api for NodeJS. This project includes user authentication system using PassportJS, access control of objects, encrypted hashing of passwords and  other secure features.
 
+## URL
+- Localhost
+ http://localhost:5050/
+ - Online
+ https://blog-api.cyclic.app/
+
 
 ## Modules
 The below shows a list of modules used as well as their function:
