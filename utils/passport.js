@@ -2,6 +2,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const JWTStrategy = require("passport-jwt").Strategy;
 const User = require("../models/User");
 const _ = require("lodash");
+const welcome = require("../utils/Emails/welcome");
 module.exports = function (passport) {
   //Sign up strategy
   passport.use(
@@ -40,20 +41,27 @@ module.exports = function (passport) {
               // set the user's local credentials
               newUser.email = email;
               newUser.password = password;
+              newUser.name.user = req.body.username;
               newUser.name.first = req.body.firstname;
               newUser.name.last = req.body.lastname;
               newUser.securityQuestion = req.body.securityQuestion;
-              newUser.save((err) => {
+              newUser.save(async (err) => {
                 if (err) {
                   return done(err, false, {
                     Error: `An error occured; ${err}`,
                   });
                 }
+                //Send Welcome Email
+                await welcome({
+                  name: req.body.firstname,
+                  email: email,
+                });
                 //Send response back
                 done(null, newUser, {
                   message: {
                     detail: "User created successfully",
                     status: "Success",
+                    email: "Sent",
                     user: _.omit(Object.values(newUser)[1], [
                       "password",
                       "securityQuestion",
@@ -76,6 +84,7 @@ module.exports = function (passport) {
       {
         usernameField: "email",
         passwordField: "password",
+        passReqToCallback: true,
       },
       async (email, password, done) => {
         if (!email || !password) {

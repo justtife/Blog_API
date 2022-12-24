@@ -9,8 +9,9 @@ const crypto = require("crypto");
 const jwtAuth = passport.authenticate("jwt", { session: false });
 const upload = require("../utils/multer");
 const _ = require("lodash");
+const userValidation = require("../validator/userValidation");
 //Signup Route
-userRoute.post("/signup", function (req, res, next) {
+userRoute.post("/signup", userValidation, function (req, res, next) {
   passport.authenticate("signup", function (err, user, info) {
     if (err) {
       return next(err); // will generate a 500 error

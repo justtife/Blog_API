@@ -1,36 +1,25 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const validator = require("validator");
 
 const UserSchema = new mongoose.Schema({
   name: {
     first: {
       type: String,
-      trim: true,
-      minlength: [3, "Firstname Field should contain more than 2 characters"],
-      required: [true, "Firstname is required"],
     },
     last: {
       type: String,
-      trim: true,
-      minlength: [3, "Lastname Field should contain more than 2 characters"],
-      required: [true, "Lastname is required"],
+    },
+    user: {
+      type: String,
+      unique: [true, 'Username exists already, please enter a new one'],
     },
   },
   email: {
     type: String,
-    validate: {
-      validator: validator.isEmail,
-      message: "Please enter a valid email",
-    },
-    required: [true, "Email field is required"],
     unique: [true, "This email already exists, please enter a new one"],
   },
   password: {
     type: String,
-    trim: true,
-    required: [true, "Password is required"],
-    minlength: [6, "Password length should e more than 5 characters"],
   },
   image: {
     type: String,
@@ -40,11 +29,11 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  subscribers:{
+    type: Array,
+  },
   securityQuestion: {
     type: String,
-    trim: true,
-    required: [true, "Security Question field is required"],
-    minlength: [3, "Security Question should be longer than 2 characters"],
   },
 });
 // Hash Password before saving on every modification of the password
