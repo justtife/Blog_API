@@ -1,4 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
+const logger = require("../logger/index");
 //Error Handler Middleware
 const errorHandler = (err, req, res, next) => {
   //An object of status code and message
@@ -6,13 +7,6 @@ const errorHandler = (err, req, res, next) => {
     message: err.message,
     statusCode: err.statusCode,
   };
-  console.log("---------------------------------------------");
-  console.log(`An error occured; Error Details: \n ${err} `);
-  console.log(err);
-  console.log("---------------------------------------------");
-  console.log(`Caught Error Message ${err.message}`);
-  console.log("---------------------------------------------");
-  console.log(`Error Name:${err.name}`);
   //Different cases of errors
   switch (err.name) {
     //MongoDB Validation Error
@@ -22,7 +16,7 @@ const errorHandler = (err, req, res, next) => {
       break;
     //Error for Duplicate values of unique items
     case "MongoServerError":
-      customError.message = `Duplicate value; Article with title: '${Object.values(
+      customError.message = `Duplicate value; The title: '${Object.values(
         err.keyValue
       )}' exists already`;
       customError.statusCode = StatusCodes.BAD_REQUEST;
@@ -39,6 +33,7 @@ const errorHandler = (err, req, res, next) => {
       customError.statusCode =
         err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
   }
+  logger.error(err);
   res
     .status(customError.statusCode)
     .json({ Error: { detail: customError.message, status: "Failed" } });
