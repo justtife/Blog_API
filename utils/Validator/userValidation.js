@@ -1,14 +1,4 @@
-const CustomError = require("../errors");
 const Joi = require("joi");
-const userValidationMiddleware = async (req, res, next) => {
-  const userPayload = req.body;
-  try {
-    await userValidator.validateAsync(userPayload);
-    next();
-  } catch (err) {
-    throw new CustomError.BadRequestError(err.details[0].message);
-  }
-};
 
 const userValidator = Joi.object({
   firstname: Joi.string().min(3).max(255).required().trim(),
@@ -23,4 +13,4 @@ const userValidator = Joi.object({
   repeat_password: Joi.ref("password"),
 }).with("password", "repeat_password");
 
-module.exports = userValidationMiddleware;
+module.exports = userValidator;
