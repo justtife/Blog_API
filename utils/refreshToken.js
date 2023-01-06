@@ -3,8 +3,9 @@ const Token = require("../models/Token");
 const { verify } = require("jsonwebtoken");
 const User = require("../models/User");
 const crypto = require("crypto");
+const CustomError = require("../errors");
 const refreshTokenOnRequest = async ({ req, res }) => {
-  //Check if Cookie(Refresh Token) exist on the browser
+  //Check if Cookie(Refresh Token) exists on the browser
   if (req.signedCookies["refreshToken"]) {
     var refreshToken = "";
     let payload = verify(
@@ -26,6 +27,8 @@ const refreshTokenOnRequest = async ({ req, res }) => {
       refreshToken = existingToken.refreshToken;
     }
     return attachCookiesToResponse({ res, user: userToken, refreshToken });
+  } else {
+    throw new CustomError.UnAuthorizedError("No logged in user, please login");
   }
 };
 
