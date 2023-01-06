@@ -9,7 +9,7 @@ const tokenUser = (user) => {
 const createJWT = ({ payload }) => {
   const token = sign(payload, process.env.JWT_SECRET, {
     //Token Expires in One Hour
-    expiresIn: 60 * 60 * 1000,
+    expiresIn: "1h",
   });
   return token;
 };
@@ -18,9 +18,10 @@ const createJWT = ({ payload }) => {
 const attachCookiesToResponse = ({ res, user, refreshToken }) => {
   //Create access tokn
   const accessTokenJWT = createJWT({ payload: { user } });
+
   //Create refresh token
   const refreshTokenJWT = createJWT({ payload: { user, refreshToken } });
-  //Token expiry time
+  //Cookie expiry time
   const fifteenMinutes = 15 * 60 * 1000;
   const oneHour = 60 * 60 * 1000;
   //Access Token
@@ -37,6 +38,7 @@ const attachCookiesToResponse = ({ res, user, refreshToken }) => {
     expires: new Date(Date.now() + oneHour),
     secure: process.env.NODE_ENV === "production",
   });
+  return accessTokenJWT;
 };
 module.exports = {
   tokenUser,
