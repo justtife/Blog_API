@@ -504,7 +504,7 @@ const welcome = async ({ name, email }) => {
 	<td class="pad">
 	<div style="font-family: sans-serif">
 	<div class="" style="font-size: 12px; font-family: Varela Round, Trebuchet MS, Helvetica, sans-serif; mso-line-height-alt: 14.399999999999999px; color: #4a60bb; line-height: 1.2;">
-	<p style="margin: 0; font-size: 12px; text-align: center; mso-line-height-alt: 14.399999999999999px;"><span style="">Copyright © 2021 Alt Blog, All rights reserved.<br></span></p>
+	<p style="margin: 0; font-size: 12px; text-align: center; mso-line-height-alt: 14.399999999999999px;"><span style="">Copyright © <span id="date"></span> Alt Blog, All rights reserved.<br></span></p>
 	<p style="margin: 0; font-size: 12px; text-align: center; mso-line-height-alt: 14.399999999999999px;"><span style=""><br>Changed your mind? You can <a href="http://www.example.com" rel="noopener" style="text-decoration: underline; color: #7f96ef;" target="_blank" title="unsubscribe">unsubscribe</a> at any time.</span></p>
 	</div>
 	</div>
@@ -530,6 +530,10 @@ const welcome = async ({ name, email }) => {
 </tr>
 </tbody>
 </table><!-- End -->
+<script>
+	const d = new Date();
+	document.getElementById("date").innerHTML = d.getFullYear();
+	</script>
 </body>
 </html>`;
   return sendMail({
