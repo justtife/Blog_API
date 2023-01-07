@@ -48,7 +48,6 @@ module.exports = function (passport) {
               newUser.name.user = req.body.username;
               newUser.name.first = req.body.firstname;
               newUser.name.last = req.body.lastname;
-              newUser.securityQuestion = req.body.securityQuestion;
               newUser.strategy.push("local");
               newUser.save(async (err) => {
                 if (err) {
@@ -69,9 +68,11 @@ module.exports = function (passport) {
                     email: "Sent",
                     user: _.omit(Object.values(newUser)[1], [
                       "password",
+                      "enable",
+                      "flagged",
+                      "subscribed",
                       "resetPasswordToken",
                       "resetPasswordExpires",
-                      "securityQuestion",
                       "strategy",
                       "__v",
                     ]),
@@ -292,9 +293,11 @@ module.exports = function (passport) {
       }
     )
   );
+  //Serialize User
   passport.serializeUser((user, done) => {
     done(null, user.id);
   });
+  //Deserialize User
   passport.deserializeUser((id, done) => {
     User.findById(id, (err, user) => {
       done(err, user);
