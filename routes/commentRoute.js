@@ -1,15 +1,21 @@
 const commentRoute = require("express").Router();
 //Import Comment Controller
 const CommentController = require("../controller/commentController");
-const passport = require("passport");
-//Passport JWT Authentication Middleware
-const jwtAuth = passport.authenticate("jwt", { session: false });
+const { checkRole } = require("../middlewares/authorization");
+const { Auth } = require("../middlewares/authentication");
+
 commentRoute
   .route("/:id")
+  //Get a single comment
+  .get(CommentController.singleComment)
   //Create Comment
-  .post(CommentController.createComment)
+  .post(Auth, CommentController.createComment)
   //Delete Comment
-  .delete(jwtAuth, CommentController.deleteComment);
+  .delete(Auth, CommentController.deleteComment);
 //Reply on a comment
-commentRoute.route("/:id/reply").patch(CommentController.createReply);
+commentRoute.route("/:id/reply").post(Auth, CommentController.createReply);
+commentRoute
+  .route("")
+  .get(CommentController.oneArticleComments)
+  .delete(Auth, CommentController.deleteReply);
 module.exports = commentRoute;
