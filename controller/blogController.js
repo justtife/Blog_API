@@ -4,43 +4,71 @@ const CustomError = require("../errors");
 const User = require("../models/User");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
+const Subscriber = require("../models/Subscriber");
 const refreshTokenOnRequest = require("../utils/refreshToken");
+const cloudinary = require("cloudinary").v2;
+const {
+  checkPermission,
+  allowAccessToRead,
+} = require("../middlewares/authorization");
+const { reminderMail } = require("../utils/Emails");
 module.exports = class BlogAPI {
   //Create Article
   static async createArticle(req, res) {
     //Refreshes Token on request if user is logged In
-    await refreshTokenOnRequest({ req, res, user: req.user });
-    const { title, description, tags, body } = req.body;
-    if (!title || !description || !body) {
+    await refreshTokenOnRequest({ req, res });
+    const { title, description, tags, content, state } = req.body;
+    let coverImage;
+    const checkTitle = await Article.findOne({ title });
+    if (checkTitle) {
+      throw new CustomError.BadRequestError(
+        `Article with title ${title} exists, please change title`
+      );
+    }
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        use_filename: true,
+        folder: "article_coverImages",
+      });
+      coverImage = result.public_id + " " + result.url;
+    } else {
       throw new CustomError.BadRequestError("Invalid Request");
     }
     //Calculate Average Reading Time
     //Average Reading time is 238words per minute
-    const numOfWords = body.split(" ").length;
-    var wordsperminute = 238;
-    var reading_time = Math.ceil(numOfWords / wordsperminute);
+    const numOfWords = content.split(" ").length;
+    let wordsperminute = 238;
+    let reading_time = Math.ceil(numOfWords / wordsperminute);
     let author = req.user._id;
+    //Save article to database
     const articleData = {
       title,
       description,
-      tags: [tags],
-      body,
+      tags,
+      content,
       reading_time,
       author,
+      state,
+      coverImage,
     };
     //Create Article
     const article = await Article.create(articleData);
-    //Count  the number of article published by the author
-    let numOfArticle = await Article.findOne({
-      author: req.user._id,
-      state: "Published",
-    }).count();
-    //Verify author if numbers of articles published is upto 20
-    if (numOfArticle >= 20) {
-      let authorDetail = await User.findById({ _id: req.user._id });
-      //Make author verified
-      authorDetail.isVerified = true;
-      await authorDetail.save();
+    //Check Subscribers
+    const followers = await Subscriber.find({ author: req.user._id }).populate({
+      path: "follower",
+      select: "email name",
+    });
+    if (article.state === "publish") {
+      //Send mail to subscribed users
+      await reminderMail({
+        name: followers[0].follower[0].name.first,
+        email: followers[0].follower[0].email,
+        title,
+        description,
+        image: coverImage.split(" ")[1],
+        author: article.author,
+        article: article._id.toString(),
+      });
     }
     res.status(StatusCodes.CREATED).json({
       message: {
@@ -53,10 +81,13 @@ module.exports = class BlogAPI {
   //List of Authors article
   static async myArticles(req, res) {
     //Refreshes Token on request if user is logged In
-    await refreshTokenOnRequest({ req, res, user: req.user });
+    await refreshTokenOnRequest({ req, res });
     //Query articles by state
     const { state } = req.query;
     let article = Article.find({ author: req.user._id });
+    if (!article) {
+      throw new CustomError.NotFoundError("No article was found");
+    }
     //Count numbers of articles
     let articleLength = await Article.find({
       author: req.user._id,
@@ -86,21 +117,29 @@ module.exports = class BlogAPI {
   // Single Article
   static async readSingleArticle(req, res) {
     //Refreshes Token on request if user is logged In
-    await refreshTokenOnRequest({ req, res, user: req.user });
+    await refreshTokenOnRequest({ req, res });
     //Get article by id
     const { id: bookID } = req.params;
-    let article = await Article.findById({
+    let article = await Article.findOne({
       _id: bookID,
     })
       //populate article by author and comments
-      .populate({ path: "user", select: "-securityQuestion -password -__v" })
+      .populate({ path: "user", select: "name email image" })
       .populate({
         path: "comments",
         select: "-createdAt -updatedAt -__v",
       })
-      .select("-updatedAt");
-    //Increment read count by one
-    article.read_count += 1;
+      .select("-updatedAt -__v");
+    //Check if the article is locked
+    //If it locked, check if user has prmission to read
+    allowAccessToRead(article, req.user);
+    //Check if the article is in draft mode
+    if (article.state === "draft") {
+      checkPermission(req.user, article.author);
+    } else {
+      //Increment read count by one
+      article.read_count += 1;
+    }
     article.save();
     res.status(StatusCodes.OK).json({
       message: {
@@ -113,19 +152,22 @@ module.exports = class BlogAPI {
   //Get all articles
   static async allArticles(req, res) {
     //Refreshes Token on request if user is logged In
-    await refreshTokenOnRequest({ req, res, user: req.user });
+    await refreshTokenOnRequest({ req, res });
     const { search, read_count, reading_time, createdAt } = req.query;
     //Find Published Articles and populate with Author's Details
-    let publishedArticle = Article.find({ state: "Published" })
+    let query = {};
+    if (req.user.role === "user") {
+      query.state = "publish";
+    }
+    let publishedArticle = Article.find(query)
       .populate({
         path: "user",
         select: "name email",
       })
-      .select("-updatedAt -__v");
-    console.log(publishedArticle);
+      .select("-updatedAt -__v -locked");
     //Count Number of Published Articles
     const numOfArticles = await Article.find({
-      state: "Published",
+      state: "publish",
     }).countDocuments();
     if (search) {
       publishedArticle = publishedArticle.find({
@@ -183,7 +225,7 @@ module.exports = class BlogAPI {
         detail: "All Articles",
         status: "Success",
         countPerPage: output.length,
-        numOfArticles,
+        numOfPubArticles: numOfArticles,
         articles: output,
       },
     });
@@ -191,7 +233,7 @@ module.exports = class BlogAPI {
   //Update/Publish article
   static async updateArticle(req, res) {
     //Refreshes Token on request if user is logged In
-    await refreshTokenOnRequest({ req, res, user: req.user });
+    await refreshTokenOnRequest({ req, res });
     const { id: bookID } = req.params;
     let article = await Article.findById({ _id: bookID });
     if (!article) {
@@ -199,8 +241,9 @@ module.exports = class BlogAPI {
         `Article with id:${bookID} deos not exist`
       );
     }
+    checkPermission(req.user, article.author);
     //Check if article has been published already
-    if (article.state == "Published") {
+    if (article.state == "publish") {
       return res.status(StatusCodes.OK).json({
         message: {
           detail: "Article has been published already",
@@ -208,13 +251,31 @@ module.exports = class BlogAPI {
         },
       });
     }
-    article.state = "Published";
+    article.state = "publish";
     await article.save();
+    //Check Subscribers
+    const followers = await Subscriber.find({ author: req.user._id }).populate({
+      path: "follower",
+      select: "email name",
+    });
+    await reminderMail({
+      name: followers[0].follower[0].name.first,
+      email: followers[0].follower[0].email,
+      title: article.title,
+      description: article.description,
+      image: article.coverImage.split(" ")[1],
+      author: article.author,
+      article: article._id.toString(),
+    });
     res.status(StatusCodes.OK).json({
       message: {
         detail: "Article has been published",
         status: "success",
-        article: _.omit(Object.values(article)[2], ["updatedAt", "__v"]),
+        article: _.omit(Object.values(article)[2], [
+          "updatedAt",
+          "__v",
+          "locked",
+        ]),
       },
     });
   }
@@ -223,27 +284,63 @@ module.exports = class BlogAPI {
     //Refreshes Token on request if user is logged In
     await refreshTokenOnRequest({ req, res, user: req.user });
     const { id: bookID } = req.params;
-    const { title, description, tags, body } = req.body;
-    if (!bookID || !title || !description || !body) {
+    const { title, description, tags, content } = req.body;
+    if (!bookID || !title || !description || !content) {
       throw new CustomError.BadRequestError("Invalid Request");
     }
+    const checkTitle = await Article.findOne({
+      $and: [{ _id: { $ne: bookID } }, { title }],
+    });
+    //if a new title if passed to the body,
+    //Check if the title exist in other articles to prevent duplicate
+    if (checkTitle) {
+      throw new CustomError.BadRequestError(
+        "Title already exist, please use another title"
+      );
+    }
     let article = await Article.findById({ _id: bookID });
+    checkPermission(req.user, article.author);
     //Calculate new reading time
-    const numOfWords = body.split(" ").length;
+    const numOfWords = content.split(" ").length;
     var wordsperminute = 238;
     var reading_time = Math.ceil(numOfWords / wordsperminute);
     //Save Article
     article.title = title;
     article.description = description;
-    article.tags = [tags];
-    article.body = body;
+    article.tags = tags;
+    article.content = content;
     article.reading_time = reading_time;
     await article.save();
     res.status(StatusCodes.OK).json({
       message: {
         detail: "Article successfully updated",
         status: "Success",
-        article: _.omit(Object.values(article)[2], ["updatedAt", "__v"]),
+        article: _.omit(Object.values(article)[2], [
+          "updatedAt",
+          "__v",
+          "locked",
+        ]),
+      },
+    });
+  }
+  //Lock Article
+  static async lockArticle(req, res) {
+    const { lock } = req.body;
+    const { id: articleId } = req.params;
+    if (lock !== true && lock !== false) {
+      throw new CustomError.BadRequestError("Invalid Entry");
+    }
+    const article = await Article.findOne({ state: "publish", _id: articleId });
+    if (!article) {
+      throw new CustomError.NotFoundError("Invalid Article");
+    }
+    article.locked = lock;
+    await article.save();
+    res.status(StatusCodes.OK).json({
+      message: {
+        details: "Article Updated",
+        locked: lock,
+        status: "Success",
       },
     });
   }
@@ -252,27 +349,10 @@ module.exports = class BlogAPI {
     //Refreshes Token on request if user is logged In
     await refreshTokenOnRequest({ req, res, user: req.user });
     const { id: bookID } = req.params;
-    const { securityQuestion } = req.body;
     let article = await Article.findById({ _id: bookID });
-    const author = await User.findById({ _id: req.user._id });
-    //Check if security Question is Correct
-    const isSecurityQuestion = await bcrypt.compare(
-      securityQuestion,
-      author.securityQuestion
-    );
-    if (!isSecurityQuestion) {
-      throw new CustomError.UnAuthorizedError("Incorrect Security Question");
-    }
+    checkPermission(req.user, article.author);
     await article.remove();
-    //Count the numbers of articles published by the author
-    let numOfArticle = await Article.findOne({
-      author: req.user._id,
-    }).count();
-    //If less than 20 set author's verification to false
-    if (numOfArticle < 20) {
-      author.isVerified = false;
-      await author.save();
-    }
+    //Send mail to user
     res.status(StatusCodes.OK).json({
       message: { detail: "Article successfully Deleted", status: "Success" },
     });

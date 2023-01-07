@@ -4,13 +4,9 @@ const ArticleSchema = new mongoose.Schema(
     title: {
       type: String,
       trim: true,
-      required: [true, "Article title is required"],
-      unique: [true, "Article title already exist, please enter a new one"],
     },
     description: {
       type: String,
-      required: [true, "Description Field is required"],
-      minlength: [20, "This field should have more than 19 characters"],
     },
     author: {
       type: mongoose.Schema.ObjectId,
@@ -20,10 +16,10 @@ const ArticleSchema = new mongoose.Schema(
     state: {
       type: String,
       enum: {
-        values: ["Draft", "Published"],
+        values: ["draft", "publish"],
         message: "{VALUE} is not supported",
       },
-      default: "Draft",
+      default: "draft",
     },
     read_count: {
       type: Number,
@@ -33,11 +29,18 @@ const ArticleSchema = new mongoose.Schema(
       type: Number,
     },
     tags: {
-      type: Array,
+      type: [String],
     },
-    body: {
+    coverImage: {
       type: String,
-      required: [true, "Article body is required"],
+      required: [true, "A cover image is needed"],
+    },
+    content: {
+      type: String,
+    },
+    locked: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
