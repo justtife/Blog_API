@@ -1,5 +1,6 @@
 const subRoute = require("express").Router();
 const SubscriptionController = require("../controller/planController");
-subRoute.route("/verify").get(SubscriptionController.verifyPayment);
-subRoute.route("/:plan").get(SubscriptionController.initializePayment);
+const { Auth } = require("../middlewares/authentication");
+subRoute.route("/verify").get(Auth, SubscriptionController.verifyPayment);
+subRoute.route("/:plan").get(Auth, SubscriptionController.initializePayment);
 module.exports = subRoute;

@@ -33,7 +33,7 @@ const errorHandler = (err, req, res, next) => {
       customError.statusCode =
         err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
   }
-  logger.error(err);
+  logger.log(err);
   res
     .status(customError.statusCode)
     .json({ Error: { detail: customError.message, status: "Failed" } });
