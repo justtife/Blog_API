@@ -1,9 +1,7 @@
 const Article = require("../models/Article");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../errors");
-const User = require("../models/User");
 const _ = require("lodash");
-const bcrypt = require("bcrypt");
 const Subscriber = require("../models/Subscriber");
 const refreshTokenOnRequest = require("../utils/refreshToken");
 const cloudinary = require("cloudinary").v2;
