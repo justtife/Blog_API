@@ -63,13 +63,14 @@ module.exports = class UserAPI {
   static async updateProfile(req, res) {
     //Refreshes Token on request if user is logged In
     await refreshTokenOnRequest({ req, res });
+    const { id: userID } = req.params;
     const { firstname, lastname, username } = req.body;
-    if (!firstname || !lastname || !username) {
+    if (!firstname || !lastname || !username || userID) {
       throw new CustomError.BadRequestError(
         `Invalid Credentials, fill all fields`
       );
     }
-    const user = await User.findOne({ _id: req.user._id });
+    const user = await User.findOne({ _id: userID });
     if (!user) {
       throw new CustomError.NotFoundError("No Account with user details");
     }
@@ -84,9 +85,13 @@ module.exports = class UserAPI {
       });
       image = result.public_id + " " + result.url;
     }
+    if (req.body.profile) {
+      user.profile = req.body.profile;
+    }
     user.name.first = firstname;
     user.name.last = lastname;
     user.image = image;
+    checkPermission(req.user, user._id);
     await user.save();
     res.status(StatusCodes.OK).json({
       message: {
@@ -291,8 +296,12 @@ module.exports = class UserAPI {
   //Make admin
   static async makeAdmin(req, res) {
     const { user: userID } = req.body;
+    const { role } = req.body;
+    if (!role) {
+      throw new CustomError.BadRequestError("Invalid Request");
+    }
     const user = await User.findById({ _id: userID });
-    user.role = "admin";
+    user.role = role;
     await user.save();
     res.status(StatusCodes.OK).json({
       message: { detail: "User is now an admin", status: "success" },

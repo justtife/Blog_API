@@ -84,7 +84,7 @@ module.exports = class CommentAPI {
   }
   static async deleteComment(req, res) {
     //Refreshes Token on request if user is logged In
-    await refreshTokenOnRequest({ req, res, user: req.user });
+    await refreshTokenOnRequest({ req, res });
     const { id: bookID } = req.params;
     const commentExists = await Comment.findOne({ article: bookID });
     if (!commentExists) {

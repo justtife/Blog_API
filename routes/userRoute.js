@@ -93,11 +93,9 @@ userRoute.get(
 userRoute.get("/profile/admins", checkRole("owner"), UserController.admin);
 
 //Single User Profile
-userRoute.get("/profile/:id", Auth, UserController.userProfile);
-
-//Update Account Route
 userRoute
-  .route("/update")
+  .route("/profile/:id")
+  .get(Auth, UserController.userProfile)
   .patch(Auth, upload.single("user"), UserController.updateProfile);
 
 //Change Password Route
@@ -112,7 +110,11 @@ userRoute.get("/logout", Auth, UserController.logout);
 //Delete Account Route
 userRoute.delete("/delete-account", Auth, UserController.deleteAccount);
 //Flag and Unflag Account
-userRoute.post("/flag", [Auth, checkRole("admin")], UserController.flagAccount);
+userRoute.post(
+  "/flag",
+  [Auth, checkRole("admin", "owner")],
+  UserController.flagAccount
+);
 //Make user an admin
 userRoute.post(
   "/make-admin",

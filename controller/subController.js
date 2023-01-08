@@ -24,7 +24,7 @@ module.exports = class Subscribe {
       $and: [{ author: authorID }, { subscriber: req.user._id }],
     });
     if (checkUser) {
-      throw new CustomError.BadRequestError("You are already subscribed");
+      throw new CustomError.BadRequestError("You are already subscribed to this user");
     }
     const subscribe = { author: authorID, subscriber: req.user._id };
     await Subscriber.create(subscribe);

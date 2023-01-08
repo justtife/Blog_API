@@ -45,10 +45,6 @@ const UserSchema = new mongoose.Schema(
     strategy: {
       type: Array,
     },
-    subscribed: {
-      type: Boolean,
-      default: false,
-    },
     resetPasswordToken: {
       type: String,
     },
