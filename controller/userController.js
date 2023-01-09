@@ -65,7 +65,7 @@ module.exports = class UserAPI {
     await refreshTokenOnRequest({ req, res });
     const { id: userID } = req.params;
     const { firstname, lastname, username } = req.body;
-    if (!firstname || !lastname || !username || userID) {
+    if (!firstname || !lastname || !username || !userID) {
       throw new CustomError.BadRequestError(
         `Invalid Credentials, fill all fields`
       );
@@ -297,14 +297,14 @@ module.exports = class UserAPI {
   static async makeAdmin(req, res) {
     const { user: userID } = req.body;
     const { role } = req.body;
-    if (!role) {
+    if (!role || !userID) {
       throw new CustomError.BadRequestError("Invalid Request");
     }
     const user = await User.findById({ _id: userID });
     user.role = role;
     await user.save();
     res.status(StatusCodes.OK).json({
-      message: { detail: "User is now an admin", status: "success" },
+      message: { detail: `User is now a/an ${role}`, status: "success" },
     });
   }
 };

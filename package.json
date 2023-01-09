@@ -50,7 +50,6 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "paystack": "^2.0.1",
-    "pdfkit": "^0.13.0",
     "puppeteer": "^19.4.1",
     "winston": "^3.8.2",
     "winston-mongodb": "^5.1.0",

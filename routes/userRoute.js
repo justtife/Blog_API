@@ -67,9 +67,7 @@ userRoute.post("/login", async (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
     try {
       if (err || !user) {
-        return res.status(401).send({
-          message: info.message,
-        });
+        return res.status(401).json(info);
       }
       req.login(user, async (error) => {
         if (error) return next(error);

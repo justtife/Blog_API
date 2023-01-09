@@ -240,6 +240,14 @@ module.exports = function (passport) {
               },
             });
           } else {
+            if (user.enable == false) {
+              done(null, false, {
+                message: {
+                  detail: "Unauthorised, create a password",
+                  status: "Failed",
+                },
+              });
+            }
             //Compare password to the hashed password saved in database
             const checkPass = await user.comparePassword(password);
 

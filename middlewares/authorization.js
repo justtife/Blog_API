@@ -28,11 +28,16 @@ const allowAccessToRead = async (article, user) => {
     ) {
       return;
     }
-    const subscription = await Subscription.findOne({ user: user._id });
-    if (subscription.valid === true) {
+    const subscription = await Subscription.findOne({
+      user: user._id,
+      valid: true,
+    });
+    if (subscription) {
       return;
     } else {
-      throw new CustomError.UnAuthorizedError("Unauthorized");
+      throw new CustomError.UnAuthorizedError(
+        "Unauthorized, subscribe to access this article"
+      );
     }
   } else {
     return;

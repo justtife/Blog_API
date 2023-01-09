@@ -58,15 +58,17 @@ module.exports = class BlogAPI {
     });
     if (article.state === "publish") {
       //Send mail to subscribed users
-      await reminderMail({
-        name: followers[0].follower[0].name.first,
-        email: followers[0].follower[0].email,
-        title,
-        description,
-        image: coverImage.split(" ")[1],
-        author: article.author,
-        article: article._id.toString(),
-      });
+      if (followers.length > 0) {
+        await reminderMail({
+          name: followers[0].follower[0].name.first,
+          email: followers[0].follower[0].email,
+          title,
+          description,
+          image: coverImage.split(" ")[1],
+          author: article.author,
+          article: article._id.toString(),
+        });
+      }
     }
     res.status(StatusCodes.CREATED).json({
       message: {
@@ -130,7 +132,7 @@ module.exports = class BlogAPI {
       .select("-updatedAt -__v");
     //Check if the article is locked
     //If it locked, check if user has prmission to read
-    allowAccessToRead(article, req.user);
+    await allowAccessToRead(article, req.user);
     //Check if the article is in draft mode
     if (article.state === "draft") {
       checkPermission(req.user, article.author);

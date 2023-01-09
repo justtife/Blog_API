@@ -25,8 +25,8 @@ const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimiter = require("express-rate-limit");
 const compression = require("compression");
-// const morgan = require("morgan");
 const session = require("express-session");
+//Logger
 const expressWinston = require("express-winston");
 
 //Import Passport Configuration
@@ -103,26 +103,24 @@ app.use(
 
 //Route Endpoints
 //Test route
-app.get("/api/v1", (req, res) => {
+app.get("/", (req, res) => {
   res.json({ Message: "Hello World", Mode: `${process.env.NODE_ENV}` });
 });
 //Error Route
 app.get("/api/v1/error", (req, res) => {
   throw new Error("An error occured");
 });
-// const receiptPDF = require("./utils/createPDF");
-// app.get("/pay", (req, res) => {
-//   receiptPDF({
-//     discount: 10,
-//     real: 1000,
-//     username: "Boluwatife",
-//     amount: 900,
-//     date: "Tuesday",
-//     subID: 12345,
-//     email: "farinubolu@gmail.com",
-//   });
-// });
-//API Routes
+const receiptPDF = require("./utils/createPDF");
+app.get("/pay", (req, res) => {
+  receiptPDF({
+    discount: 10,
+    real: 1000,
+    date: "Tuesday",
+    subID: 12345,
+    email: "farinubolu@gmail.com",
+  });
+});
+
 
 // User Routes
 app.use("/api/v1", require("./routes/userRoute"));
