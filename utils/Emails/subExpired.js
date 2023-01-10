@@ -1,0 +1,180 @@
+const sendMail = require("../sendMail");
+const subExpired = async (name, email) => {
+  const subExpiredMail = `<!DOCTYPE html>
+    <html lang="en-US">
+      <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+        <title>Reset Password Email Template</title>
+        <meta name="description" content="Reset Password Email Template." />
+        <style type="text/css">
+          a:hover {
+            text-decoration: underline !important;
+          }
+        </style>
+      </head>
+    
+      <body
+        marginheight="0"
+        topmargin="0"
+        marginwidth="0"
+        style="margin: 0px; background-color: #f2f3f8"
+        leftmargin="0"
+      >
+        <!--100% body table-->
+        <table
+          cellspacing="0"
+          border="0"
+          cellpadding="0"
+          width="100%"
+          bgcolor="#f2f3f8"
+          style="
+            @import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700);
+            font-family: 'Open Sans', sans-serif;
+          "
+        >
+          <tr>
+            <td>
+              <table
+                style="background-color: #f2f3f8; max-width: 670px; margin: 0 auto"
+                width="100%"
+                border="0"
+                align="center"
+                cellpadding="0"
+                cellspacing="0"
+              >
+                <tr>
+                  <td style="height: 80px">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td style="text-align: center">
+                    <a href="http://localhost:5050" title="logo" target="_blank">
+                      <img
+                        width="60"
+                        src="https://i.postimg.cc/CLQ4KdVN/image-removebg-preview-1.png"
+                        title="logo"
+                        alt="logo"
+                      />
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="height: 20px">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td>
+                    <table
+                      width="95%"
+                      border="0"
+                      align="center"
+                      cellpadding="0"
+                      cellspacing="0"
+                      style="
+                        max-width: 670px;
+                        background: #fff;
+                        border-radius: 3px;
+                        text-align: center;
+                        -webkit-box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.06);
+                        -moz-box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.06);
+                        box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.06);
+                      "
+                    >
+                      <tr>
+                        <td style="height: 40px">&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 35px">
+                          <h1
+                            style="
+                              color: #1e1e2d;
+                              font-weight: 500;
+                              margin: 0;
+                              font-size: 32px;
+                              font-family: 'Rubik', sans-serif;
+                            "
+                          >
+                            Your subscription has been
+                            <span style="color: #5bc0de"
+                              ><strong>expired!!!</strong></span
+                            >
+                          </h1>
+                          <span
+                            style="
+                              display: inline-block;
+                              vertical-align: middle;
+                              margin: 29px 0 26px;
+                              border-bottom: 1px solid #cecece;
+                              width: 100px;
+                            "
+                          ></span>
+                          <p
+                            style="
+                              color: #455056;
+                              font-size: 15px;
+                              line-height: 24px;
+                              margin: 0;
+                            "
+                          >
+                            Dear ${name}, <br />
+                            We are sorry to inform you that your subscription plan
+                            has ended. <br />
+                            Now you do not have full access to the application.
+                            <br /><br />
+                            <small>
+                              Please click on this
+                              <a
+                                href="http://"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                >link</a
+                              >
+                              to subscribe so as to gain access to locked articles
+                              and enjoy the maximum access to our application</small
+                            ><br />
+    
+                            Thank You
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="height: 40px">&nbsp;</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+    
+                <tr>
+                  <td style="height: 20px">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td style="text-align: center">
+                    <p
+                      style="
+                        font-size: 14px;
+                        color: rgba(69, 80, 86, 0.7411764705882353);
+                        line-height: 18px;
+                        margin: 0 0 0;
+                      "
+                    >
+                      &copy; <strong>altblog.com</strong>
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="height: 80px">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <!--/100% body table-->
+      </body>
+    </html>
+    `;
+  return sendMail({
+    from: process.env.MAIL_USER,
+    to: email,
+    subject: "Your subscription has expired",
+    html: subExpiredMail,
+  });
+};
+module.exports = subExpired;
