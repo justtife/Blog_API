@@ -240,8 +240,8 @@ module.exports = function (passport) {
               },
             });
           } else {
-            if (user.enable == false) {
-              done(null, false, {
+            if (user.enable === false) {
+              return done(null, false, {
                 message: {
                   detail: "Unauthorised, create a password",
                   status: "Failed",

@@ -112,15 +112,9 @@ app.get("/api/v1/error", (req, res) => {
 });
 const receiptPDF = require("./utils/createPDF");
 app.get("/pay", (req, res) => {
-  receiptPDF({
-    discount: 10,
-    real: 1000,
-    date: "Tuesday",
-    subID: 12345,
-    email: "farinubolu@gmail.com",
-  });
+  let mail = "farinubolu@gmail.com";
+  receiptPDF(10, 3000, "Tuesday", 12345678567, `${mail}`,2750);
 });
-
 
 // User Routes
 app.use("/api/v1", require("./routes/userRoute"));

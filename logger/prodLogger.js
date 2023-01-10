@@ -17,6 +17,7 @@ const logger = createLogger({
       level: "error",
       db: process.env.MONGO_URI,
       collection: "serverError",
+      options: { useUnifiedTopology: true },
       format: logFormat,
     }),
     new SlackTransport({

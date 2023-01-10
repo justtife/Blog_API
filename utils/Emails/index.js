@@ -5,6 +5,8 @@ const goodbyeMail = require("./goodbyeMail");
 const flagAccountMail = require("./flagAccount");
 const unflagAccountMail = require("./unflagAccount");
 const reminderMail = require("./publishReminder");
+const subReminderMail = require("./subReminder");
+const subExpiredMail = require("./subExpired");
 module.exports = {
   welcome,
   createPassword,
@@ -13,4 +15,6 @@ module.exports = {
   flagAccountMail,
   unflagAccountMail,
   reminderMail,
+  subReminderMail,
+  subExpiredMail,
 };

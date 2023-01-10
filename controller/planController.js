@@ -5,7 +5,9 @@ const paystack = require("paystack")(process.env.PAYSTACK_TEST_SECRET_KEY);
 const cron = require("node-cron");
 const refreshTokenOnRequest = require("../utils/refreshToken");
 const receiptPDF = require("../utils/createPDF");
-
+const logger = require("../logger/index");
+const { subExpiredMail, subReminderMail } = require("../utils/Emails");
+const User = require("../models/User");
 module.exports = class SubscriptionAPI {
   static async initializePayment(req, res) {
     await refreshTokenOnRequest({ req, res });
@@ -52,17 +54,20 @@ module.exports = class SubscriptionAPI {
         let subDay;
         let discount;
         let fullDate = new Date(`${body.data.paid_at}`);
-
+        let real_amount;
         //Set subscription days
         if (body.data.metadata.plan === "monthly") {
           subDay = 30;
-          discount = 0.0;
+          discount = 0.001;
+          real_amount = 1000.01;
         } else if (body.data.metadata.plan === "quarterly") {
           subDay = 90;
           discount = 8.33;
+          real_amount = 3000;
         } else {
           subDay = 365;
           discount = 16.67;
+          real_amount = 12000;
         }
         const date = new Date();
         //Check if user has made subscription before
@@ -87,14 +92,14 @@ module.exports = class SubscriptionAPI {
           subscription.paymentToken.push(ref);
           subscription.reminderMail = "not_sent";
           await subscription.save();
-          console.log("Saved Users data");
           //Send receipt
           await receiptPDF(
             discount,
-            body.data.amount / 100,
+            real_amount,
             fullDate.toString(),
-            body.data.meta.userID,
-            body.data.customer.email
+            body.data.id,
+            body.data.customer.email,
+            body.data.amount / 100
           );
           return res.status(StatusCodes.OK).json({
             message: {
@@ -115,13 +120,14 @@ module.exports = class SubscriptionAPI {
         data.endDate = new Date(date.setDate(date.getDate() + subDay));
         await data.save();
         //Send pdf receipt via mail
-        await receiptPDF({
+        await receiptPDF(
           discount,
-          real: body.data.amount / 100,
-          date: fullDate.toString(),
-          subID: body.data.meta.userID,
-          email: body.data.customer.email,
-        });
+          real_amount,
+          fullDate.toString(),
+          body.data.id,
+          body.data.customer.email,
+          body.data.amount / 100
+        );
         res.status(StatusCodes.OK).json({
           message: {
             detail: "Payment Successful",
@@ -146,18 +152,26 @@ cron.schedule("* * * * *", async () => {
       parseRecentTime.getTime() > weekBeforeEndDate.getTime() &&
       subscription.reminderMail !== "sent"
     ) {
+      const user = await User.findById({ _id: subscription.user });
       //Send notification mail
-      console.log("Email sent");
+      logger.info("Reminder Email sent");
       subscription.reminderMail = "sent";
+      let firstName = user.name.first;
+      let email = user.email;
+      await subReminderMail(firstName, email);
     }
     //Conditions to turn subscription valid option to false
     if (
       parseRecentTime.getTime() > subscription.endDate &&
       subscription.valid === true
     ) {
-      //Send your subscription has expired mail
-      console.log("Subscription Expired");
+      logger.info("Subscription Expired");
       subscription.valid = false;
+      const user = await User.findById({ _id: subscription.user });
+      //Send your subscription has expired mail
+      let firstName = user.name.first;
+      let email = user.email;
+      await subExpiredMail(firstName, email);
     }
     await subscription.save();
   });

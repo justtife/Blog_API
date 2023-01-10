@@ -1,7 +1,6 @@
 const commentRoute = require("express").Router();
 //Import Comment Controller
 const CommentController = require("../controller/commentController");
-const { checkRole } = require("../middlewares/authorization");
 const { Auth } = require("../middlewares/authentication");
 
 commentRoute
